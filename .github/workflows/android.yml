@@ -39,34 +39,51 @@ jobs:
       - name: Expo prebuild
         run: npx expo prebuild --platform android --clean
 
-      - name: Inject async-storage local_repo into build.gradle
+      - name: Configure release signing
         run: |
+          # 1. Decode keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/play-store-keystore.jks
+
+          # 2. Create signing.gradle with release signing config
+          cat > android/app/signing.gradle << 'EOF'
+          android.signingConfigs.release {
+              storeFile file('play-store-keystore.jks')
+              storePassword System.getenv("KEYSTORE_PASSWORD")
+              keyAlias System.getenv("KEYSTORE_ALIAS")
+              keyPassword System.getenv("KEYSTORE_KEY_PASSWORD")
+          }
+          android.buildTypes.release.signingConfig = android.signingConfigs.release
+          EOF
+
+          # 3. Inject apply from: 'signing.gradle' into app/build.gradle after apply plugin line
+          sed -i "s/apply plugin: \"com.android.application\"/apply plugin: \"com.android.application\"\napply from: 'signing.gradle'/" android/app/build.gradle
+
+          # 4. Inject async-storage local_repo into build.gradle
           sed -i "/maven { url 'https:\/\/www.jitpack.io' }/a\\    maven { url \"\$rootDir/../node_modules/@react-native-async-storage/async-storage/android/local_repo\" }" android/build.gradle
-          grep -A 2 "jitpack" android/build.gradle
+
+          # Verify
+          echo "=== signing.gradle ===" && cat android/app/signing.gradle
+          echo "=== signingConfigs in build.gradle ===" && grep -A 4 "signingConfigs" android/app/build.gradle | head -8
+
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
 
       - name: Set Android SDK path
         run: |
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la $ANDROID_HOME/
 
-      - name: Build debug APK
+      - name: Build release AAB
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon --console=plain 2>&1 | tee /tmp/gradle_output.txt
-          echo "=== Gradle exit code: $? ==="
-          find . -name "*.apk" -type f 2>/dev/null
+          ./gradlew bundleRelease --no-daemon --console=plain 2>&1 | tail -30
 
-      - name: Find APK
-        id: find-apk
-        run: |
-          find android -name "*.apk" -type f 2>/dev/null
-          echo "apk_path=$(find android -name "*.apk" -type f | head -1)" >> $GITHUB_OUTPUT
-
-      - name: Upload APK
-        if: success() && steps.find-apk.outputs.apk_path != ''
+      - name: Upload AAB
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: AI-Music-Player-debug.apk
-          path: ${{ steps.find-apk.outputs.apk_path }}
+          name: AI-Music-Player-release.aab
+          path: android/app/build/outputs/bundle/release/*.aab
           retention-days: 7
