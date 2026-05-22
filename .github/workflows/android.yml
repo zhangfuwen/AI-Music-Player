@@ -39,6 +39,11 @@ jobs:
       - name: Expo prebuild
         run: npx expo prebuild --platform android --clean
 
+      - name: Inject async-storage local_repo into build.gradle
+        run: |
+          sed -i "/maven { url 'https:\/\/www.jitpack.io' }/a\\    maven { url \"\$rootDir/../node_modules/@react-native-async-storage/async-storage/android/local_repo\" }" android/build.gradle
+          grep -A 2 "jitpack" android/build.gradle
+
       - name: Set Android SDK path
         run: |
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
