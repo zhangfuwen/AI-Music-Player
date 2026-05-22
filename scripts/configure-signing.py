@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import re, sys
+import re
 
 with open('android/app/build.gradle', 'r') as f:
     content = f.read()
@@ -18,14 +18,14 @@ def add_release(match):
     return block + '''
             release {
                 storeFile file('play-store-keystore.jks')
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEYSTORE_ALIAS")
-                keyPassword System.getenv("KEYSTORE_KEY_PASSWORD")
+                storePassword project.findProperty("KEYSTORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
+                keyAlias project.findProperty("KEYSTORE_ALIAS") ?: System.getenv("KEYSTORE_ALIAS")
+                keyPassword project.findProperty("KEYSTORE_KEY_PASSWORD") ?: System.getenv("KEYSTORE_KEY_PASSWORD")
             }
 '''
 
 content = re.sub(
-    r'(signingConfigs \{[\s\S]*?debug \{[\s\S]*?})',
+    r'(signingConfigs \{[\s\S]*?debug \{[\s\S]*?\})',
     add_release,
     content,
     count=1
@@ -35,15 +35,3 @@ with open('android/app/build.gradle', 'w') as f:
     f.write(content)
 
 print("Done modifying app/build.gradle")
-
-# Verify
-with open('android/app/build.gradle', 'r') as f:
-    lines = f.readlines()
-in_sc = False
-for i, line in enumerate(lines):
-    if 'signingConfigs' in line:
-        in_sc = True
-    if in_sc:
-        print(line.rstrip())
-        if line.strip().startswith('}') and i > 5:
-            break

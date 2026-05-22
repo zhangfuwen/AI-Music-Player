@@ -57,10 +57,12 @@ jobs:
       - name: Build release AAB
         run: |
           cd android
-          export GRADLE_OPTS="-Xmx4096m -Dorg.gradle.jvmargs=-Xmx4096m"
-          ./gradlew bundleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4096m" --console=plain --stacktrace 2>&1 | tee /tmp/gradle.log
-          echo "=== GRADLE EXIT: $? ==="
-          tail -5 /tmp/gradle.log
+          ./gradlew bundleRelease --no-daemon --console=plain \
+            -PKEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" \
+            -PKEYSTORE_ALIAS="$KEYSTORE_ALIAS" \
+            -PKEYSTORE_KEY_PASSWORD="$KEYSTORE_KEY_PASSWORD" \
+            2>&1 | tee /tmp/gradle.log
+          echo "=== GRADLE EXIT: ${PIPESTATUS[0]} ==="
 
       - name: Debug JS bundling error
         if: failure()
