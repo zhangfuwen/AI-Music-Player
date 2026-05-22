@@ -48,10 +48,16 @@ jobs:
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -80
 
+      - name: Find APK
+        id: find-apk
+        run: |
+          find android -name "*.apk" -type f 2>/dev/null
+          echo "apk_path=$(find android -name "*.apk" -type f | head -1)" >> $GITHUB_OUTPUT
+
       - name: Upload APK
-        if: success()
+        if: success() && steps.find-apk.outputs.apk_path != ''
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug.apk
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: AI-Music-Player-debug.apk
+          path: ${{ steps.find-apk.outputs.apk_path }}
           retention-days: 7
