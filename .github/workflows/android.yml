@@ -54,25 +54,25 @@ jobs:
         run: |
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
 
-      - name: Build release AAB
+      - name: Build release APK
         run: |
           cd android
-          ./gradlew bundleRelease --no-daemon --console=plain \
+          ./gradlew assembleRelease --no-daemon --console=plain \
             -PKEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" \
             -PKEYSTORE_ALIAS="$KEYSTORE_ALIAS" \
             -PKEYSTORE_KEY_PASSWORD="$KEYSTORE_KEY_PASSWORD" \
             2>&1 | tee /tmp/gradle.log
           echo "=== GRADLE EXIT: ${PIPESTATUS[0]} ==="
 
-      - name: Debug JS bundling error
+      - name: Debug build error
         if: failure()
         run: |
-          grep -E "error|Error|BUILD FAILED|node" /tmp/gradle.log | grep -v "DEBUG\|INFO\|LIFECYCLE" | head -20
+          grep -E "error|Error|BUILD FAILED|What went wrong" /tmp/gradle.log | grep -v "DEBUG\|INFO\|LIFECYCLE" | head -10
 
-      - name: Upload AAB
+      - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: AI-Music-Player-release.aab
-          path: android/app/build/outputs/bundle/release/*.aab
+          name: AI-Music-Player-release.apk
+          path: android/app/build/outputs/apk/release/*.apk
           retention-days: 7
