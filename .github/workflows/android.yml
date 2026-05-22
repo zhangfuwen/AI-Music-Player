@@ -36,6 +36,9 @@ jobs:
       - name: Expo prebuild
         run: npx expo prebuild --platform android --clean
 
+      - name: Set Android SDK path
+        run: echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
+
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug
 
