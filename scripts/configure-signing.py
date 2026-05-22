@@ -18,9 +18,9 @@ def add_release_config(match):
     return block + '''
             release {
                 storeFile file('play-store-keystore.jks')
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEYSTORE_ALIAS")
-                keyPassword System.getenv("KEYSTORE_KEY_PASSWORD")
+                storePassword project.property("KEYSTORE_PASSWORD")
+                keyAlias project.property("KEYSTORE_ALIAS")
+                keyPassword project.property("KEYSTORE_KEY_PASSWORD")
             }
 '''
 
