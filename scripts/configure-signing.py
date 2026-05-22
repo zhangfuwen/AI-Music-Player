@@ -21,6 +21,8 @@ def add_release(match):
                 storePassword project.findProperty("KEYSTORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
                 keyAlias project.findProperty("KEYSTORE_ALIAS") ?: System.getenv("KEYSTORE_ALIAS")
                 keyPassword project.findProperty("KEYSTORE_KEY_PASSWORD") ?: System.getenv("KEYSTORE_KEY_PASSWORD")
+                v1SigningEnabled true
+                v2SigningEnabled true
             }
 '''
 
