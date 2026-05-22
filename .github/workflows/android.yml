@@ -46,7 +46,11 @@ jobs:
           ls -la $ANDROID_HOME/
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -80
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon --console=plain 2>&1 | tee /tmp/gradle_output.txt
+          echo "=== Gradle exit code: $? ==="
+          find . -name "*.apk" -type f 2>/dev/null
 
       - name: Find APK
         id: find-apk
