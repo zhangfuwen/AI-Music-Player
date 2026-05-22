@@ -57,13 +57,15 @@ jobs:
       - name: Build release AAB
         run: |
           cd android
-          ./gradlew bundleRelease --no-daemon --console=plain --stacktrace 2>&1 | tee /tmp/gradle.log | tail -50
+          export GRADLE_OPTS="-Xmx4096m -Dorg.gradle.jvmargs=-Xmx4096m"
+          ./gradlew bundleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4096m" --console=plain --stacktrace 2>&1 | tee /tmp/gradle.log
           echo "=== GRADLE EXIT: $? ==="
+          tail -5 /tmp/gradle.log
 
       - name: Debug JS bundling error
         if: failure()
         run: |
-          grep -E "error|Error|FAIL|BUILD" /tmp/gradle.log | head -30
+          grep -E "error|Error|BUILD FAILED|node" /tmp/gradle.log | grep -v "DEBUG\|INFO\|LIFECYCLE" | head -20
 
       - name: Upload AAB
         if: success()
