@@ -41,30 +41,9 @@ jobs:
 
       - name: Configure release signing
         run: |
-          # 1. Decode keystore
           echo "$KEYSTORE_BASE64" | base64 -d > android/app/play-store-keystore.jks
-
-          # 2. Create signing.gradle with release signing config
-          cat > android/app/signing.gradle << 'EOF'
-          android.signingConfigs.release {
-              storeFile file('play-store-keystore.jks')
-              storePassword System.getenv("KEYSTORE_PASSWORD")
-              keyAlias System.getenv("KEYSTORE_ALIAS")
-              keyPassword System.getenv("KEYSTORE_KEY_PASSWORD")
-          }
-          android.buildTypes.release.signingConfig = android.signingConfigs.release
-          EOF
-
-          # 3. Inject apply from: 'signing.gradle' into app/build.gradle after apply plugin line
-          sed -i "s/apply plugin: \"com.android.application\"/apply plugin: \"com.android.application\"\napply from: 'signing.gradle'/" android/app/build.gradle
-
-          # 4. Inject async-storage local_repo into build.gradle
           sed -i "/maven { url 'https:\/\/www.jitpack.io' }/a\\    maven { url \"\$rootDir/../node_modules/@react-native-async-storage/async-storage/android/local_repo\" }" android/build.gradle
-
-          # Verify
-          echo "=== signing.gradle ===" && cat android/app/signing.gradle
-          echo "=== signingConfigs in build.gradle ===" && grep -A 4 "signingConfigs" android/app/build.gradle | head -8
-
+          python3 scripts/configure-signing.py
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
