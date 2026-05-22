@@ -33,16 +33,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>/dev/null || true
+
       - name: Expo prebuild
         run: npx expo prebuild --platform android --clean
 
       - name: Set Android SDK path
-        run: echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls -la $ANDROID_HOME/
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -80
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
