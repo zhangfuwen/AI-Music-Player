@@ -39,6 +39,14 @@ jobs:
       - name: Expo prebuild
         run: npx expo prebuild --platform android --clean
 
+      - name: Patch hermesCommand for linux
+        run: |
+          sed -i 's|%OS-BIN%|linux64-bin|g' android/app/build.gradle
+          echo "=== hermesCommand line ==="
+          grep -n "hermesCommand\|OS-BIN\|getAbsolutePath" android/app/build.gradle
+          echo "=== node test ==="
+          node --print "require.resolve('react-native/package.json')" 2>&1
+
       - name: Configure release signing
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > android/app/play-store-keystore.jks
