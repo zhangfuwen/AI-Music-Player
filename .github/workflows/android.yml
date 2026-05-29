@@ -70,6 +70,10 @@ jobs:
           cd android
           ./gradlew assembleRelease --no-daemon --console=plain 2>&1 | tee /tmp/gradle.log
           echo "=== GRADLE EXIT: ${PIPESTATUS[0]} ==="
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
 
       - name: Debug build error
         if: failure()
