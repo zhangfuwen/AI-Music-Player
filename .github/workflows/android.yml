@@ -38,6 +38,12 @@ jobs:
       - name: Expo prebuild
         run: npx expo prebuild --platform android --clean
 
+      - name: Patch expo-av CMakeLists for RN 0.81
+        run: |
+          sed -i '/ReactAndroid_VERSION_MINOR GREATER_EQUAL 76/,/endif()/c\  target_link_libraries(${PACKAGE_NAME} ReactAndroid::reactnative)' node_modules/expo-av/android/CMakeLists.txt
+          echo "=== expo-av CMakeLists patch ==="
+          grep -n "reactnative" node_modules/expo-av/android/CMakeLists.txt | head -10
+
       - name: Patch hermesCommand for linux
         run: |
           sed -i '14s/.*/    hermesCommand = "\/home\/runner\/work\/AI-Music-Player\/AI-Music-Player\/node_modules\/react-native\/sdks\/hermesc\/linux64-bin\/hermesc"/' android/app/build.gradle
