@@ -63,10 +63,6 @@ jobs:
 
       - name: Build release APK
         run: |
-          # Write secrets to gradle.properties so project.property() can read them
-          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
-          echo "KEYSTORE_ALIAS=$KEYSTORE_ALIAS" >> android/gradle.properties
-          echo "KEYSTORE_KEY_PASSWORD=$KEYSTORE_KEY_PASSWORD" >> android/gradle.properties
           cd android
           ./gradlew assembleRelease --no-daemon --console=plain 2>&1 | tee /tmp/gradle.log
           echo "=== GRADLE EXIT: ${PIPESTATUS[0]} ==="
