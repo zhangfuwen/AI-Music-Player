@@ -20,6 +20,7 @@
     "expo-haptics": "~56.0.3",
     "expo-image": "~56.0.9",
     "expo-linear-gradient": "~56.0.4",
+    "expo-modules-core": "^56.0.14-canary-20260526-6cd5e37",
     "expo-secure-store": "~56.0.4",
     "expo-status-bar": "~56.0.4",
     "expo-web-browser": "~56.0.5",
