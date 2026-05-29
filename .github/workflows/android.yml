@@ -40,8 +40,7 @@ jobs:
 
       - name: Patch hermesCommand for linux
         run: |
-          # Hardcode hermes path (line 14 has the node --print approach that fails in CI)
-          sed -i '14s/.*/    hermesCommand = new File(rootDir, "\/home\/runner\/work\/AI-Music-Player\/AI-Music-Player\/node_modules\/react-native\/sdks\/hermesc\/linux64-bin\/hermesc").getAbsolutePath()/' android/app/build.gradle
+          sed -i '14s/.*/    hermesCommand = "\/home\/runner\/work\/AI-Music-Player\/AI-Music-Player\/node_modules\/react-native\/sdks\/hermesc\/linux64-bin\/hermesc"/' android/app/build.gradle
           echo "=== hermesCommand after patch ==="
           grep -n "hermesCommand" android/app/build.gradle | head -5
 
