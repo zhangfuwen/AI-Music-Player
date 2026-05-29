@@ -31,10 +31,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: amalshay ali/setup-android-sdk@v1
-        with:
-          sdk-version: "34.0.0"
-          build-tools-version: "34.0.0"
+        uses: android-actions/setup-android@v3
 
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>/dev/null || true
