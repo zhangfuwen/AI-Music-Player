@@ -40,7 +40,7 @@ jobs:
 
       - name: Patch expo-av CMakeLists for RN 0.81
         run: |
-          sed -i '/ReactAndroid_VERSION_MINOR GREATER_EQUAL 76/,/endif()/c\  target_link_libraries(${PACKAGE_NAME} ReactAndroid::reactnative)' node_modules/expo-av/android/CMakeLists.txt
+          sed -i 's/ReactAndroid::reactnativejni/ReactAndroid::reactnative/g' node_modules/expo-av/android/CMakeLists.txt
           echo "=== expo-av CMakeLists patch ==="
           grep -n "reactnative" node_modules/expo-av/android/CMakeLists.txt | head -10
 
